@@ -1,0 +1,17 @@
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+statsmodels>=0.14.0
+linearmodels>=4.30
+xgboost>=2.0.0
+shap>=0.43.0
+anthropic>=0.25.0
+duckdb>=0.10.0
+streamlit>=1.32.0
+plotly>=5.18.0
+matplotlib>=3.8.0
+scikit-learn>=1.4.0
+python-dotenv>=1.0.0
+pyarrow>=14.0.0
+pytest>=8.0.0
+pytest-cov>=4.1.0

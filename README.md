@@ -1,7 +1,7 @@
 # Alternative Data Earnings Signal Engine
 **Causal inference + LLM-Native Workflow on Transaction Panel Data**
 
-Simulates a YiptData-style research pipeline: engineers signals from synthetic transaction-level panel data, applies Difference-in-Differences causal modeling to isolate revenue infections, predicts earnigs suprise direction, and deploys an LLM agent to auto-generate investor-facting white paper sections —— compete with figures, equations, and narrative farming.
+Simulates a YipitData-style research pipeline: engineers signals from synthetic transaction-level panel data, applies Difference-in-Differences causal modeling to isolate revenue inflections, predicts earnings surprise direction, and deploys an LLM agent to auto-generate investor-facing white paper sections complete with figures, equations, and narrative framing.
 
 ## Table of Contents
 1. Overview
@@ -11,23 +11,23 @@ Simulates a YiptData-style research pipeline: engineers signals from synthetic t
 5. Tech Stack
 6. Setup & Installation
 7. Usage
-8. LLM-Native Worflow
+8. LLM-Native Workflow
 9. Eval Harness
 10. Results & Key Findings
 11. White Paper Output Sample
-12. Design Decsions
+12. Design Decisions
 13. Limitations & Future Work
 
 ## Overview
-Alternative data —— transaction records, invoice feeds, web-scraped panels –– reaches institutional investors weeks before quarterly earnings. The question is never just <em>"is there a spike?"</em> but <em>"is this spike causally attributable to the company's performance, or is it a market-wide trend?</em>
-This project build that full pipeline end-to-end:
-1. **Panel Dtaa Simulation** — Generates realistic transaction-level data for treatment and control firms across 12 quarters, with injected revenue inflection events
-2. **Feature Engineering** — Computes cohort retention, spend velocity, new-vs-returning customer ratio, and rolling single momentum using PySpark-style vectorized operations
-3. **Causal Inference (DiD)** — Applies Difference-in-Differences with two-way fixed effects (form + time) to isolate the causal lift attributable to the treatment event, not macro trends
-4. **Earnings Surprise Classifier** — XGBoost that maps engineered signals to binary earnings surprise direction (beat / miss)
+Alternative data — transaction records, invoice feeds, and web-scraped panels — reaches institutional investors weeks before quarterly earnings. The question is never just <em>"is there a spike?"</em> but <em>"is this spike causally attributable to the company's performance, or is it a market-wide trend?"</em>
+This project builds that full pipeline end-to-end:
+1. **Panel Data Simulation** — Generates realistic transaction-level data for treatment and control firms across 12 quarters, with injected revenue inflection events
+2. **Feature Engineering** — Computes cohort retention, spend velocity, new-vs-returning customer ratio, and rolling signal momentum using vectorized operations
+3. **Causal Inference (DiD)** — Applies Difference-in-Differences with two-way fixed effects (firm + time) to isolate the causal lift attributable to the treatment event, not macro trends
+4. **Earnings Surprise Classifier** — XGBoost maps engineered signals to binary earnings surprise direction (beat / miss)
 5. **LLM White Paper Agent** — Claude API agent that ingests model outputs and generates an investor-facing white paper section with equation citations, figure callouts, and confidence-qualified narrative
-6. **Eval Harness** — Rubric-based scoring system that audits LLM output across size dimensions: factual accuracy, citation discipline, causal langauage precision, hedging appropriateness, figure consistency, and readability
-7. **Streamlit Dashboard** — Dual-stakeholder interface showing signal diagonistics for analysts and white paper output for clients
+6. **Eval Harness** — Rubric-based scoring system that audits LLM output across six dimensions: factual accuracy, citation discipline, causal language precision, hedging appropriateness, figure consistency, and readability
+7. **Streamlit Dashboard** — Dual-stakeholder interface showing signal diagnostics for analysts and white paper output for clients
 
 ## Architecture
 <img width="372" height="551" alt="Screenshot 2026-05-13 at 2 24 00 PM" src="https://github.com/user-attachments/assets/7386370e-7c1a-4348-9dc4-55a0fbb531d0" />
@@ -37,10 +37,10 @@ This project build that full pipeline end-to-end:
 
 ## Components
 **1. Panel Data Simulation (src/simulation/panel_generator.py)**
-Generates a balances panel of 50 firms x 12 quarters:
-- 10 treatement firms, 40 control firms
+Generates a balanced panel of 50 firms x 12 quarters:
+- 10 treatment firms, 40 control firms
 - Transaction volume, average order value, cohort size per quarter
-- Revenue inflection event injected at Q7 for treatement group (effect size: +15%GMV)
+- Revenue inflection event injected at Q7 for treatment group (effect size: +15% GMV)
 - Gaussian noise calibrated to real e-commerce volatility benchmarks
 
 **2. Feature Engineering (src/features/engineer.py)**
@@ -58,8 +58,8 @@ Y_{it} = α_i + λ_t + β·(Treat_i × Post_t) + ε_{it}
 - **Model**: XGBoost with walk-forward cross-validation (no data leakage)
 - **Target**: Binary — earnings beat (+1) or miss (0) vs. analyst consensus
 - **Features**: All engineered signals + DiD residuals as a meta-feature
-- **Explanability**: SHAP waterfall plots per predcition, global feature importance
-- **Threshold tuning**: Recall-priroritized (false negatives are more costly for investors than false positives)
+- **Explainability**: SHAP waterfall plots per prediction, global feature importance
+- **Threshold tuning**: Recall-prioritized (false negatives are more costly for investors than false positives)
 
 **5. LLM White Paper Agent (src/llm/)**
 Claude API agent that receives structured model outputs and generates a white paper section formatted for institutional investor readers:
@@ -73,14 +73,14 @@ Claude API agent that receives structured model outputs and generates a white pa
 **Output:** 400-600 word white paper section with:
 - Methodology paragraph (reference DiD literature, cites Callaway & Sant'Anna 2021)
 - Results paragraph with inline equation and confidence framing
-- Limitations paragraph (honest abour synthetic control assumptions)
+- Limitations paragraph (honest about synthetic control assumptions)
 - Figure callouts with interpretive captions
 
 **6. Eval Harness (src/eval/)**
 Rubric-based scoring of every LLM output before it surfaces to users — mirrors the citation discipline and methodological rigor the JD explicitly calls out:
 <img width="1264" height="546" alt="image" src="https://github.com/user-attachments/assets/f9d582cb-1060-49de-b05b-852e194ec01a" />
 
-Scores logged to DuckDB. Outputs below 0.75 composite are flagges for human review and not surfaced on the dashboard.
+Scores are logged to DuckDB. Outputs below 0.75 composite are flagged for human review and not surfaced on the dashboard.
 
 ## Tech Stack
 <img width="1104" height="778" alt="image" src="https://github.com/user-attachments/assets/87322f83-2a18-46da-ba03-253166b0db70" />
@@ -114,15 +114,16 @@ streamlit run src/dashboard/app.py
 
 ## Usage
 ### Run end-to-end pipeline
-pythonfrom src.simulation.panel_generator import generate_panel
+```python
+from src.simulation.panel_generator import PanelConfig, generate_panel
 from src.features.engineer import engineer_features
 from src.causal.did_model import run_did
 from src.predictive.xgb_classifier import train_and_evaluate
-from src.llm.white_paper_agent import generate_white_paper_section
+from src.llm.white_paper_agent import generate_from_results
 from src.eval.harness import evaluate_output
 
 #### 1. Generate panel
-panel = generate_panel(n_firms=50, n_quarters=12, treatment_effect=0.15)
+panel = generate_panel(PanelConfig(n_firms=50, n_quarters=12, treatment_effect=0.15))
 
 #### 2. Engineer features
 features = engineer_features(panel)
@@ -136,23 +137,24 @@ model_metrics = train_and_evaluate(features)
 print(f"AUC: {model_metrics['auc']:.3f} | Recall@threshold: {model_metrics['recall']:.3f}")
 
 #### 5. Generate white paper section
-wp_section = generate_white_paper_section(did_results, model_metrics)
+wp_section = generate_from_results(did_results, model_metrics)
 
 #### 6. Evaluate output
 eval_score = evaluate_output(wp_section, did_results, model_metrics)
 print(f"Eval composite score: {eval_score.composite:.2f}")
+```
 
 ## LLM-Native Workflow
 This project was built with LLM coding assistants as a primary collaborator across every phase — consistent with how the role expects you to work. Specific patterns used:
 ### Where the LLM multiplies output:
-- Scaffolded the DiD fixed-effects model setup (linearmodels API is verbose; assitant got it right on first pass)
+- Scaffolded the DiD fixed-effects model setup (fixed-effects APIs are verbose; assistant got it right on first pass)
 - Generated the rubric scoring logic from a natural language description of each dimension
 - First draft of the white paper prompt template, iterated 3 times based on output quality
 
 ### Where I overrode the assitant: 
-- Initial SHAP intergation used "TreeExplainer" with background data — assistnat defaulted to "summary_plot" which doesn't match the waterfall format needed; replaced with "force_plot" pipeline manually
-- Walk-forward CV logic had a subtle look-ahead leak in the first generated version (used ".lioc" incorrectly on time-sorted data); caught in code reveiw and corrected
-- Causal language in the first white paper fraft used "causes" without DiD qualification — flagged by the eval harness and corrected in prompt v2
+- Initial SHAP integration used "TreeExplainer" with background data — the assistant defaulted to "summary_plot" which did not match the waterfall format needed; replaced with a waterfall pipeline manually
+- Walk-forward CV logic had a subtle look-ahead leak in the first generated version; caught in code review and corrected
+- Causal language in the first white paper draft used "causes" without DiD qualification — flagged by the eval harness and corrected in prompt v2
 
 ## Eval Harness
 Every LLM-generated white paper section is scored before surfacing. Sample output:
